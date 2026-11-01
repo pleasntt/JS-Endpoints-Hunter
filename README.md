@@ -201,4 +201,4 @@ PRs, issues, and stars are welcome ⭐. If you find a bug or want a new feature 
 
 **Made with ❤️ for the bug-bounty community**
 
-</div>
+</div># JS-Endpoints-Hunter
