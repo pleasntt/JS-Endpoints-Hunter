@@ -55,6 +55,12 @@ def _markdown_table(rows: list[list[str]], header: list[str]) -> str:
     return "\n".join(lines)
 
 
+def _sarif_uri(source: str) -> str:
+    # Source maps use "bundle.js:src/file.ts" for display; SARIF needs one file.
+    value = str(source or "").replace("\\", "/")
+    return value if "://" in value else value.split(":", 1)[0]
+
+
 def _sarif(data: dict[str, Any]) -> str:
     rules: dict[str, dict[str, Any]] = {}
     results: list[dict[str, Any]] = []
@@ -87,7 +93,7 @@ def _sarif(data: dict[str, Any]) -> str:
                 "locations": [
                     {
                         "physicalLocation": {
-                            "artifactLocation": {"uri": item.get("source", "")},
+                            "artifactLocation": {"uri": _sarif_uri(item.get("source", ""))},
                             "region": {"startLine": max(1, int(item.get("line") or 1))},
                         }
                     }

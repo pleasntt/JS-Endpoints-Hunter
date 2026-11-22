@@ -101,7 +101,7 @@ def test_sarif_and_jsonl_artifacts(tmp_path: Path):
                 masked="AKIA****************",
                 secret_type="aws_access_key",
                 severity="HIGH",
-                source="app.js",
+                source="app.js:src/app.ts",
                 line=2,
             )
         ],
@@ -118,6 +118,10 @@ def test_sarif_and_jsonl_artifacts(tmp_path: Path):
     sarif = json.loads((tmp_path / "out" / artifacts["report.sarif"]).read_text(encoding="utf-8"))
     assert sarif["version"] == "2.1.0"
     assert sarif["runs"][0]["results"][0]["level"] == "error"
+    uri = sarif["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"][
+        "uri"
+    ]
+    assert uri == "app.js"
     lines = (
         (tmp_path / "out" / artifacts["findings.jsonl"]).read_text(encoding="utf-8").splitlines()
     )
