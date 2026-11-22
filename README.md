@@ -109,7 +109,7 @@ pip install -r requirements-dev.txt
 black .
 ruff check .
 mypy jsh
-pytest --cov=jsh --cov-report=term-missing
+python -m pytest --cov=jsh --cov-report=term-missing
 ```
 
 В текущей версии 38 тестов, покрытие около 76%. Все проверки проходят.

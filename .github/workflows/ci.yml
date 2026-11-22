@@ -20,7 +20,7 @@ jobs:
       - run: ruff check .
       - run: black --check .
       - run: mypy jsh
-      - run: pytest --cov=jsh --cov-report=xml --cov-fail-under=60
+      - run: python -m pytest --cov=jsh --cov-report=xml --cov-fail-under=60
       - name: Sample scan
         run: python jsh.py scan --dir examples --output out --quiet
       - name: Upload reports
