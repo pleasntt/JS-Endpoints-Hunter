@@ -1,0 +1,6 @@
+# One regular expression per line. A finding is dropped when
+# value, raw value, source, secret type or host matches.
+# Useful for CDN hosts that are always noise.
+#
+# cdn\.example\.com
+# \bexample-internal-token-prefix\b

@@ -1,0 +1,29 @@
+patterns_path = "patterns.yaml"
+
+[server]
+host = "127.0.0.1"
+port = 8765
+open_browser = true
+
+[scan]
+timeout = 10.0
+concurrency = 10
+rate_limit = 5.0
+download_maps = true
+find_secrets = true
+show_secrets = false
+resolve_relative = true
+include_vendor = false
+keep_assets = false
+proxy = ""
+entropy_secrets = false
+allowlist_file = ""
+harvest_maps = true
+
+[ui]
+theme = "dark"
+lang = "ru"
+
+[paths]
+data_dir = "~/.js-endpoints-hunter"
+

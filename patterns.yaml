@@ -1,0 +1,165 @@
+version: 1
+
+http:
+  - name: fetch
+    kind: rest
+    confidence: 94
+    regex: |-
+      \bfetch\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: axios
+    kind: rest
+    confidence: 93
+    method_group: 1
+    url_group: 2
+    regex: |-
+      \baxios\.(get|post|put|delete|patch|head|options)\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: axios-config
+    kind: rest
+    confidence: 88
+    regex: |-
+      \baxios\s*\(\s*\{[\s\S]{0,500}?\burl\s*:\s*[`'"]([^`'"]+)[`'"]
+  - name: xhr-open
+    kind: rest
+    confidence: 90
+    method_group: 1
+    url_group: 2
+    regex: |-
+      \.open\s*\(\s*[`'"](GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)[`'"]\s*,\s*[`'"]([^`'"]+)[`'"]
+  - name: jquery-ajax
+    kind: rest
+    confidence: 82
+    regex: |-
+      \$\.ajax\s*\(\s*\{[\s\S]{0,700}?\burl\s*:\s*[`'"]([^`'"]+)[`'"]
+  - name: jquery-get-post
+    kind: rest
+    confidence: 85
+    method_group: 1
+    url_group: 2
+    regex: |-
+      \$\.(get|post)\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: got-ky-wretch
+    kind: rest
+    confidence: 84
+    method_group: 1
+    url_group: 2
+    default_method: GET
+    regex: |-
+      \b(?:got|superagent|ky|wretch)\s*\.\s*(get|post|put|delete|patch|head|options)?\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: dynamic-import
+    kind: rest
+    confidence: 70
+    regex: |-
+      \bimport\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: worker
+    kind: worker
+    confidence: 78
+    regex: |-
+      new\s+(?:Shared)?Worker\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: service-worker
+    kind: worker
+    confidence: 80
+    regex: |-
+      serviceWorker\.register\s*\(\s*[`'"]([^`'"]+)[`'"]
+  - name: import-scripts
+    kind: worker
+    confidence: 74
+    regex: |-
+      \bimportScripts\s*\(\s*[`'"]([^`'"]+)[`'"]
+websocket:
+  - name: websocket
+    kind: websocket
+    confidence: 95
+    regex: |-
+      new\s+WebSocket\s*\(\s*[`'"](wss?://[^`'"]+)[`'"]
+  - name: eventsource
+    kind: sse
+    confidence: 95
+    regex: |-
+      new\s+EventSource\s*\(\s*[`'"](https?://[^`'"]+|/[^`'"]*)[`'"]
+graphql:
+  - name: graphql-operation
+    kind: graphql
+    confidence: 60
+    regex: |-
+      ((?:query|mutation)\s+(?:[\w\d_]+)?\s*\{[^}]{1,200}\})
+  - name: graphql-introspection
+    kind: graphql
+    confidence: 66
+    regex: |-
+      \b(__schema|IntrospectionQuery)\b
+  - name: graphql-path
+    kind: graphql
+    confidence: 88
+    regex: |-
+      ['"`](\/graphql|\/api\/graphql|\/v\d+\/graphql)['"`]
+paths:
+  - name: api-path
+    kind: path
+    confidence: 62
+    regex: |-
+      ['"`](\/(?:api|v\d+|internal|admin|auth|user|account|billing|payment|debug|test|dev|staging|static|uploads|files|assets)(?:\/[\w\-{}$:.]+)+)['"`]
+  - name: file-path
+    kind: file
+    confidence: 58
+    regex: |-
+      ['"`](\/[\w\-.]+\/[\w\-.]+(?:\/[\w\-.{}:$]+)*\.(?:json|xml|php|aspx?|jsp|do|action))['"`]
+  - name: openapi-path
+    kind: openapi
+    confidence: 72
+    regex: |-
+      ['"`]((?:\/[\w\-.]+)*\/(?:openapi|swagger)(?:\.json|\.yaml)?|\/v\d+\/api-docs|\/swagger-ui(?:\/index\.html)?)['"`]
+absolute:
+  - name: absolute-url
+    kind: absolute
+    confidence: 50
+    regex: |-
+      (https?:\/\/[\w\-.]+(?::\d+)?(?:\/[\w\-._~:\/?#\[\]@!$&'()*+,;=%]*)?)
+secrets:
+  - name: aws_access_key
+    severity: HIGH
+    confidence: 98
+    regex: |-
+      \b(AKIA[0-9A-Z]{16})\b
+  - name: aws_secret
+    severity: HIGH
+    confidence: 92
+    value_group: 1
+    regex: |-
+      (?i)aws(?:.{0,20})?(?:secret|private)(?:.{0,20})?['"]([0-9a-zA-Z/+=]{40})['"]
+  - name: google_api_key
+    severity: HIGH
+    confidence: 96
+    regex: |-
+      \b(AIza[0-9A-Za-z\-_]{35})\b
+  - name: stripe_key
+    severity: HIGH
+    confidence: 96
+    regex: |-
+      \b((?:sk|pk|rk)_(?:live|test)_[0-9a-zA-Z]{24,})\b
+  - name: github_token
+    severity: HIGH
+    confidence: 96
+    regex: |-
+      \b(gh[pousr]_[A-Za-z0-9_]{36,})\b
+  - name: jwt
+    severity: MEDIUM
+    confidence: 90
+    regex: |-
+      \b(eyJ[A-Za-z0-9_\-]+\.eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+)\b
+  - name: private_key
+    severity: HIGH
+    confidence: 99
+    regex: |-
+      (-----BEGIN (?:RSA|EC|OPENSSH|PGP|DSA) PRIVATE KEY-----[\s\S]{0,8000}?-----END (?:RSA|EC|OPENSSH|PGP|DSA) PRIVATE KEY-----)
+  - name: bearer_token
+    severity: MEDIUM
+    confidence: 75
+    regex: |-
+      (?i)authorization\s*[:=]\s*['"]?bearer\s+([\w\-._~+/]+=*)
+  - name: generic_secret
+    severity: LOW
+    confidence: 55
+    name_group: 1
+    value_group: 2
+    regex: |-
+      (?i)\b(api[_-]?key|apikey|secret|token|password|passwd|pwd|auth)\b\s*[:=]\s*['"]?([\w\-./+=]{16,})['"]?

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "billing.js",
+  "sources": ["src/billing.ts"],
+  "sourcesContent": [
+    "// original TypeScript source\nexport async function refunds() {\n  return fetch(\"/api/v1/internal/refunds\", { method: \"GET\" });\n}\n\nexport const invoices = \"/api/v1/billing/invoices\";\n"
+  ],
+  "names": [],
+  "mappings": ""
+}

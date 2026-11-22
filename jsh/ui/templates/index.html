@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="{{ lang }}" data-theme="{{ theme }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>JS-Endpoints-Hunter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ version }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" data-view="home" aria-label="JS-Endpoints-Hunter">
+        <span class="brand-mark">JS</span>
+        <span class="brand-copy"><strong>Endpoints</strong><small>Hunter</small></span>
+      </a>
+      <nav class="nav">
+        <button class="nav-item is-active" data-view="home"><span class="nav-icon">⌂</span><span data-i18n="home">Главная</span></button>
+        <button class="nav-item" data-view="history"><span class="nav-icon">◷</span><span data-i18n="history">История</span><span class="nav-count" id="history-count">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="health"><span class="health-dot" id="health-dot"></span><span id="health-text">checking local API…</span></div>
+        <div class="micro">v{{ version }} · local-first</div>
+        <div class="side-actions">
+          <button class="icon-btn" id="theme-toggle" title="Theme">◐</button>
+          <button class="icon-btn lang-btn" id="lang-toggle" title="Language">EN</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="page-eyebrow">LOCAL-FIRST JS RECON</p>
+          <h1 id="page-title">Найдите API, которые не видны снаружи.</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost" id="open-palette"><span class="kbd">Ctrl</span><span class="kbd">K</span></button>
+          <span class="readonly-badge" data-i18n="readonly">только чтение · GET</span>
+        </div>
+      </header>
+
+      <section class="view is-active" id="view-home">
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="pill">JS · TS · source maps · HAR</span>
+            <h2>JS-Endpoints-Hunter</h2>
+            <p>Соберите endpoints, пути, GraphQL и секреты из публичных бандлов - локально, без отправки данных наружу.</p>
+            <div class="hero-tags">
+              <span>fetch / axios / XHR</span><span>source maps</span><span>HAR</span><span data-i18n="tagSecrets">секреты маскируются</span>
+            </div>
+          </div>
+          <div class="hero-orbit" aria-hidden="true">
+            <div class="orbit orbit-a"></div>
+            <div class="orbit orbit-b"></div>
+            <div class="orbit-core">GET</div>
+            <span class="orbit-dot dot-a"></span><span class="orbit-dot dot-b"></span><span class="orbit-dot dot-c"></span>
+          </div>
+        </div>
+
+        <div class="mode-grid" role="tablist" aria-label="Input type">
+          <button class="mode-card is-active" data-mode="url" role="tab"><span class="mode-icon">↗</span><span><b data-i18n="modeUrl">URL JS-файла</b><small>billing.js, app.mjs</small></span></button>
+          <button class="mode-card" data-mode="html" role="tab"><span class="mode-icon">◫</span><span><b data-i18n="modeHtml">URL страницы</b><small data-i18n="modeHtmlSmall">все &lt;script src&gt;</small></span></button>
+          <button class="mode-card" data-mode="dir" role="tab"><span class="mode-icon">▤</span><span><b data-i18n="modeDir">Локальная папка</b><small>JS / TS / JSON</small></span></button>
+          <button class="mode-card" data-mode="list" role="tab"><span class="mode-icon">≡</span><span><b data-i18n="modeList">Список URL</b><small data-i18n="modeListSmall">построчно</small></span></button>
+          <button class="mode-card" data-mode="har" role="tab"><span class="mode-icon">◈</span><span><b data-i18n="modeHar">HAR-файл</b><small data-i18n="tagDevtools">снимок DevTools</small></span></button>
+          <button class="mode-card" data-mode="clipboard" role="tab"><span class="mode-icon">⌘</span><span><b data-i18n="modeClipboard">Из буфера</b><small data-i18n="modeClipboardSmall">вставить из буфера</small></span></button>
+        </div>
+
+        <form class="panel scan-form" id="scan-form" autocomplete="off">
+          <div class="field-head">
+            <label for="target" id="input-label">URL JS-файла</label>
+            <span class="field-note" id="input-hint">Например: https://example.com/static/billing.js</span>
+          </div>
+          <div class="target-row">
+            <textarea id="target" rows="1" spellcheck="false" placeholder="https://example.com/static/billing.js"></textarea>
+            <button type="button" class="ghost paste" id="paste-btn"><span data-i18n="paste">Вставить</span></button>
+            <button type="button" class="ghost is-hidden" id="pick-folder" data-i18n="pickFolder">Выбрать папку</button>
+            <button type="button" class="ghost is-hidden" id="pick-har" data-i18n="pickHar">Выбрать HAR</button>
+            <input type="file" id="folder-input" webkitdirectory multiple hidden>
+            <input type="file" id="har-input" accept=".har,.json,application/json" hidden>
+          </div>
+          <div class="upload-note" id="upload-note"></div>
+
+          <div class="options-grid">
+            <label class="check"><input type="checkbox" id="opt-maps" checked><span data-i18n="optMaps">Скачивать source maps</span></label>
+            <label class="check"><input type="checkbox" id="opt-secrets" checked><span data-i18n="optSecrets">Искать секреты</span></label>
+            <label class="check"><input type="checkbox" id="opt-resolve" checked><span data-i18n="optResolve">Строить полные URL</span></label>
+            <label class="check"><input type="checkbox" id="opt-vendor"><span data-i18n="optVendor">Включая vendor и node_modules</span></label>
+            <label class="check"><input type="checkbox" id="opt-assets"><span data-i18n="optAssets">Не отбрасывать assets (.css/.png)</span></label>
+            <label class="check"><input type="checkbox" id="opt-show-secrets"><span data-i18n="optShowSecrets">Показывать секреты</span></label>
+            <label class="check"><input type="checkbox" id="opt-entropy"><span data-i18n="optEntropy">Эвристика для случайных строк</span></label>
+            <label class="check proxy-check"><span data-i18n="allowlistLabel">Список исключений</span><input type="text" id="allowlist" placeholder="allowlist.txt"></label>
+            <label class="check proxy-check"><span data-i18n="proxyLabel">Прокси</span><input type="text" id="proxy" placeholder="http://127.0.0.1:8080"></label>
+          </div>
+
+          <div class="form-footer">
+            <p class="fineprint" data-i18n="fineprint">Только GET-запросы. Секреты маскируются. Не сканируйте чужие системы без разрешения.</p>
+            <button class="primary" id="start" type="submit">Старт <span class="kbd">Ctrl↵</span></button>
+          </div>
+        </form>
+
+        <div class="section-head"><h2 data-i18n="latestScans">Последние сканы</h2><button class="link-btn" data-view="history" id="all-history">Все →</button></div>
+        <div class="recent-grid" id="recent-scans"></div>
+      </section>
+
+      <section class="view" id="view-progress">
+        <div class="progress-head">
+          <div><p class="eyebrow">LIVE PROGRESS</p><h2 id="progress-title">Сканирование…</h2><p class="muted" id="progress-file">подготовка</p></div>
+          <button class="danger ghost" id="stop">Стоп <span class="kbd">Esc</span></button>
+        </div>
+        <div class="progress-panel panel">
+          <div class="progress-track"><span id="progress-bar"></span></div>
+          <div class="progress-meta"><span id="progress-count">0 / 0 файлов</span><span id="progress-pct">0%</span></div>
+          <div class="counter-grid">
+            <div><span data-i18n="endpointsLabel">Endpoints</span><b id="count-endpoints">0</b></div>
+            <div><span data-i18n="secretsLabel">Секреты</span><b id="count-secrets">0</b></div>
+            <div><span data-i18n="hostsLabel">Хосты</span><b id="count-hosts">0</b></div>
+          </div>
+          <div class="console" id="log" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-results">
+        <div class="results-head">
+          <div class="results-title">
+            <button class="icon-btn back" id="back-home" title="Назад" data-i18n-title="back">←</button>
+            <div><p class="eyebrow">SCAN RESULTS</p><h2 id="results-title">Результаты</h2><p class="muted" id="results-meta"></p></div>
+          </div>
+          <div class="result-actions" id="result-actions"></div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="tab is-active" data-tab="endpoints"><span data-i18n="tabEndpoints">Эндпоинты</span> <span id="tab-count-endpoints">0</span></button>
+          <button class="tab" data-tab="secrets"><span data-i18n="tabSecrets">Секреты</span> <span id="tab-count-secrets">0</span></button>
+          <button class="tab" data-tab="hosts"><span data-i18n="tabHosts">Хосты</span> <span id="tab-count-hosts">0</span></button>
+          <button class="tab" data-tab="stats" data-i18n="tabStats">Статистика</button>
+          <button class="tab" data-tab="raw" data-i18n="tabRaw">Исходники</button>
+        </div>
+        <div class="filters" id="filters">
+          <input type="search" id="filter-search" placeholder="Поиск по path, source, host…" data-i18n-placeholder="search">
+          <select id="filter-type"><option value="" data-i18n="allTypes">Все типы</option><option value="rest">REST</option><option value="graphql">GraphQL</option><option value="websocket">WebSocket</option><option value="sse">SSE</option><option value="absolute">Absolute</option><option value="path">Path</option><option value="file">File</option><option value="worker">Worker</option><option value="openapi">OpenAPI</option></select>
+          <select id="filter-method"><option value="" data-i18n="allMethods">Все методы</option><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option><option>HEAD</option><option>OPTIONS</option></select>
+          <select id="filter-severity"><option value="" data-i18n="severity">Severity</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select>
+        </div>
+        <div class="tab-panel is-active" id="tab-endpoints">
+          <div class="table-wrap"><table class="data-table"><thead><tr><th class="select-col"><input type="checkbox" id="select-all" title="Выбрать все" data-i18n-title="selectAll"></th><th data-i18n="thPath">Путь</th><th data-i18n="thMethod">Метод</th><th data-i18n="thType">Тип</th><th data-i18n="thSource">Источник</th><th class="num" data-i18n="thConfidence">Уверенность</th></tr></thead><tbody id="endpoint-rows"></tbody></table></div>
+          <div class="empty" id="endpoint-empty" data-i18n="endpointsEmpty">Endpoint'ы пока не найдены.</div>
+        </div>
+        <div class="tab-panel" id="tab-secrets">
+          <div class="notice warn" data-i18n="secretNotice">Значения замаскированы. Включите «Показывать секреты» и перезапустите скан, чтобы увидеть raw.</div>
+          <div class="table-wrap"><table class="data-table"><thead><tr><th data-i18n="thType">Тип</th><th data-i18n="thMasked">Маска</th><th data-i18n="thSeverity">Важность</th><th data-i18n="thSource">Источник</th></tr></thead><tbody id="secret-rows"></tbody></table></div>
+          <div class="empty" id="secret-empty" data-i18n="secretsEmpty">Секретов не найдено.</div>
+        </div>
+        <div class="tab-panel" id="tab-hosts"><div class="chip-grid" id="host-list"></div><div class="empty" id="host-empty" data-i18n="hostsEmpty">Хостов не найдено.</div></div>
+        <div class="tab-panel" id="tab-stats"><div class="stats-grid" id="stats-grid"></div><div class="section-head"><h3 data-i18n="topPrefixes">Топ префиксов</h3></div><div class="prefix-list" id="prefix-list"></div><div class="section-head"><h3 data-i18n="dependencies">Зависимости и CVE</h3></div><div id="dependencies"></div></div>
+        <div class="tab-panel" id="tab-raw"><div class="raw-head"><select id="raw-select"></select><span class="muted" id="raw-size"></span></div><pre class="raw-view" id="raw-content" data-i18n="rawPrompt">Выберите файл.</pre></div>
+        <aside class="detail is-hidden" id="detail"><div class="detail-head"><span id="detail-kind"></span><button class="icon-btn" id="detail-close">×</button></div><h3 id="detail-title"></h3><p class="mono" id="detail-value"></p><div class="detail-actions"><button class="ghost" id="detail-copy" data-i18n="copy">Копировать</button><button class="ghost" id="detail-raw" data-i18n="rawButton">Raw</button><a class="ghost is-hidden" id="detail-open" target="_blank" rel="noreferrer" data-i18n="open">Открыть</a></div><div class="detail-block"><span data-i18n="sourceLabel">Source</span><code id="detail-source"></code></div><div class="detail-block"><span data-i18n="contextLabel">Context</span><pre id="detail-snippet"></pre></div><div class="detail-block is-hidden" id="detail-jwt-block"><span data-i18n="jwtLabel">JWT (без проверки подписи)</span><pre id="detail-jwt"></pre></div></aside>
+      </section>
+
+      <section class="view" id="view-history">
+        <div class="results-head"><div><p class="eyebrow">LOCAL HISTORY</p><h2 data-i18n="historyTitle">История сканов</h2><p class="muted" data-i18n="historySubtitle">SQLite, только этот компьютер</p></div><button class="ghost" id="refresh-history" data-i18n="refresh">Обновить</button></div>
+        <div class="filters" id="history-filters"><input type="search" id="history-search" placeholder="Поиск по target, типу, статусу…" data-i18n-placeholder="historySearch"></div>
+        <div id="history-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="modal is-hidden" id="palette"><div class="modal-card"><div class="palette-input"><span>⌘</span><input id="palette-query" placeholder="scan URL · paste · export · history…" data-i18n-placeholder="palettePlaceholder"><span class="kbd">Esc</span></div><div id="palette-list"></div></div></div>
+  <div class="modal is-hidden" id="secret-modal"><div class="modal-card small"><p class="eyebrow" data-i18n="warning">ВНИМАНИЕ</p><h2 data-i18n="secretModalTitle">Показать raw-секреты?</h2><p data-i18n="secretModalText">Они попадут в отчёт и SQLite на этом компьютере. Продолжайте только если понимаете риск.</p><div class="modal-actions"><button class="ghost" id="secret-cancel" data-i18n="cancel">Отмена</button><button class="danger" id="secret-confirm" data-i18n="secretModalConfirm">Показать и запустить</button></div></div></div>
+  <script>window.JSH_VERSION = "{{ version }}";</script>
+  <script src="{{ url_for('static', filename='app.js') }}?v={{ version }}"></script>
+</body>
+</html>

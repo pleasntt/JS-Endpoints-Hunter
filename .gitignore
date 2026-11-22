@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tmp-*/
+.tmp-data/
+.tmp-results/
+.tmp-ui-data/
+results/
+*.sqlite
+.env
+dist/
+.build/
+*.pyz
+*.exe
